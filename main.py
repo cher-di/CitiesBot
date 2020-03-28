@@ -2,7 +2,7 @@ import csv
 import argparse
 
 from scripts.bot.bot import Bot
-from scripts.config.parse_config import parse_config
+import scripts.config.parse_config as parse_config
 
 
 def parse_arguments() -> dict:
@@ -22,12 +22,20 @@ def parse_arguments() -> dict:
 
 if __name__ == '__main__':
     args = parse_arguments()
-    config = parse_config(args["path_to_config"])
-    token = config["token"]
+    path_to_config = args["path_to_config"]
 
-    with open(config["path_to_cities"], "rt", encoding="utf8") as file:
-        cities_info = csv.DictReader(file)
-        _cities = tuple(row["city"] for row in cities_info)
+    try:
+        config = parse_config.parse_config(path_to_config)
+    except parse_config.ConfigValidationError:
+        print("Config validation failed")
+    except parse_config.ConfigReadError:
+        print(f"Failed to read config file : {path_to_config}")
+    else:
+        token = config["token"]
 
-    bot = Bot(token, _cities, config["logs_path"])
-    bot.run()
+        with open(config["path_to_cities"], "rt", encoding="utf8") as file:
+            cities_info = csv.DictReader(file)
+            _cities = tuple(row["city"] for row in cities_info)
+
+        bot = Bot(token, _cities, config["logs_path"])
+        bot.run()
