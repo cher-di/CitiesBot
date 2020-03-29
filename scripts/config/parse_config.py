@@ -1,16 +1,18 @@
 import json
 import fastjsonschema as schema
+import re
+import os
 
 
 class ConfigParserError(Exception):
     pass
 
 
-class ConfigValidationError(ConfigParserError):
+class ConfigFileError(ConfigParserError):
     pass
 
 
-class ConfigReadError(ConfigParserError):
+class ConfigValidationError(ConfigParserError):
     pass
 
 
@@ -33,7 +35,28 @@ def parse_config(path_to_file: str) -> dict:
             else:
                 raise ConfigValidationError(f"Failed to validate config: {config}")
     except IOError:
-        raise ConfigParserError(f"An error occurred while reading config file: {path_to_file}")
+        raise ConfigFileError(f"An error occurred while reading config file: {path_to_file}")
+
+
+def validate_token(token: str) -> bool:
+    match = re.fullmatch("[0-9]{9}:[a-zA-Z0-9_]{35}", token)
+    return match is not None
+
+
+def validate_path_to_existent_file(path: str) -> bool:
+    return os.path.isfile(path)
+
+
+def validate_path_file(path: str) -> bool:
+    dirname = os.path.dirname(path)
+    return os.path.isdir(dirname)
+
+
+VALIDATORS = {
+    "token": validate_token,
+    "path_to_cities": validate_path_to_existent_file,
+    "logs_path": validate_path_file
+}
 
 
 def validate_config(config: dict) -> bool:
@@ -42,6 +65,9 @@ def validate_config(config: dict) -> bool:
     except schema.JsonSchemaException:
         return False
     else:
+        for key, value in config.items():
+            if not VALIDATORS[key](value):
+                return False
         return True
 
 

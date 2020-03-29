@@ -28,7 +28,7 @@ if __name__ == '__main__':
         config = parse_config.parse_config(path_to_config)
     except parse_config.ConfigValidationError:
         print("Config validation failed")
-    except parse_config.ConfigReadError:
+    except parse_config.ConfigFileError:
         print(f"Failed to read config file : {path_to_config}")
     else:
         token = config["token"]
