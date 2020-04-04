@@ -2,7 +2,7 @@ import csv
 import argparse
 
 from scripts.bot.bot import Bot
-from scripts.config.parse_config import parse_config
+from scripts.config.parse_config import parse_config, ConfigParserError
 
 
 def parse_arguments() -> dict:
@@ -20,12 +20,18 @@ def parse_arguments() -> dict:
 
 if __name__ == '__main__':
     args = parse_arguments()
-    config = parse_config(args["config_file_path"])
-    token = config["token"]
 
-    with open(config["cities_db_file_path"], "rt", encoding="utf8") as file:
-        cities_info = csv.DictReader(file)
-        _cities = tuple(row["city"] for row in cities_info)
+    try:
+        config = parse_config(args["config_file_path"])
+    except ConfigParserError as e:
+        print(e)
+        exit(1)
+    else:
+        token = config["token"]
 
-    bot = Bot(token, _cities, config["logs_file_path"])
-    bot.run()
+        with open(config["cities_db_file_path"], "rt", encoding="utf8") as file:
+            cities_info = csv.DictReader(file)
+            _cities = tuple(row["city"] for row in cities_info)
+
+        bot = Bot(token, _cities, config["logs_file_path"])
+        bot.run()
