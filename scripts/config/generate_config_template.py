@@ -4,8 +4,8 @@ import argparse
 
 CONFIG_TEMPLATE = {
         "token": "<token>",
-        "path_to_cities": "<path_to_the_file with cities>",
-        "logs_path": "<path_to_the_logs_file>"
+        "cities_db_file_path": "<path_to_the_file with cities>",
+        "logs_file_path": "<path_to_the_logs_file>"
     }
 
 
@@ -16,10 +16,10 @@ def generate_config_template(path_to_file: str) -> None:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create template for config file")
-    parser.add_argument("path_to_file", help="Path to template config file")
-    path_to_file = parser.parse_args().path_to_file
+    parser.add_argument("file_path", help="Path to template config file")
+    file_path = parser.parse_args().file_path
 
     try:
-        generate_config_template(path_to_file)
+        generate_config_template(file_path)
     except IOError:
-        print(f"An error occurred while writing config template to {path_to_file}")
+        print(f"An error occurred while writing config template to {file_path}")
