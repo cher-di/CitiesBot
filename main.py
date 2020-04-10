@@ -29,9 +29,9 @@ if __name__ == '__main__':
     else:
         token = config["token"]
 
-        with open(config["cities_db_file_path"], "rt", encoding="utf8") as file:
-            cities_info = csv.DictReader(file)
-            _cities = tuple(row["city"] for row in cities_info)
+        with open(config["cities_db_file_path"], "r", encoding="utf8") as file:
+            reader = csv.reader(file)
+            _cities = tuple(row[0] for row in reader)
 
         bot = Bot(token, _cities, config["logs_file_path"])
         bot.run()
